@@ -320,4 +320,82 @@ body {
     33% { opacity: 1; }
     38% { opacity: 0; }
     100% { opacity: 0; }
+}/* ==========================================================================
+   RESPONSIVE DESIGN (Mobile & Tablet Adjustments)
+   ========================================================================== */
+
+/* For Tablets and smaller laptop screens (1024px and down) */
+@media screen and (max-width: 1024px) {
+    .main-title {
+        font-size: 48px; /* Scale down hero header font size */
+    }
+    
+    .navbar {
+        padding: 20px 4%; /* Pull nav padding tighter to edges */
+    }
+}
+
+/* For Mobile Devices (768px and down) */
+@media screen and (max-width: 768px) {
+    /* Navbar Adjustment */
+    .navbar {
+        flex-direction: column; /* Stack logo, links, and button vertically */
+        gap: 15px;
+        padding: 15px 2%;
+        text-align: center;
+        position: relative; /* Removes fixed freeze on mobile to save screen room */
+    }
+
+    .nav-links {
+        flex-wrap: wrap; /* Allows menu links to wrap nicely if phone is narrow */
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .nav-links li {
+        margin: 0 10px;
+    }
+
+    .cta-btn {
+        width: 100%;
+        max-width: 200px;
+        padding: 10px 20px;
+    }
+
+    /* Hero Section Adjustment */
+    .hero-carousel {
+        height: auto;
+        min-height: calc(100vh - 160px); /* Adjust heights for the fluid top layout */
+        padding: 60px 20px;
+    }
+
+    .main-title {
+        font-size: 32px; /* Prevent text clipping on narrow mobile views */
+        margin-bottom: 25px;
+    }
+
+    .subtitle {
+        font-size: 12px;
+        letter-spacing: 2px;
+    }
+
+    /* Content Layout Adjustments */
+    .page-content {
+        padding-top: 40px; /* Compensates for navigation block layout shift */
+    }
+
+    .content-container {
+        padding: 25px 15px;
+        margin: 0 15px;
+    }
+
+    .page-title {
+        font-size: 28px;
+    }
+
+    /* Grids automatically change behavior */
+    .grid-layout {
+        grid-template-columns: 1fr; /* Forces columns into a solid single vertical stack */
+        gap: 20px;
+    }
 }
