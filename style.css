@@ -11,7 +11,7 @@ body {
     color: #333333;
 }
 
-/* Updated Branding Variables for a Sleek Look */
+/* Branding Variables */
 :root {
     --accent-color: #ffffff;
     --dark-bg: #1a1a24;
@@ -20,7 +20,7 @@ body {
     --glossy-border: rgba(255, 255, 255, 0.15);
 }
 
-/* Clean, Fixed Navbar */
+/* Clean, Fixed Navbar - Fixed Blocking Issue */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -31,7 +31,8 @@ body {
     position: fixed;
     width: 100%;
     top: 0;
-    z-index: 1000;
+    z-index: 99999 !important; /* Always sits completely on top */
+    pointer-events: auto !important; /* Forces link clicks to register */
 }
 
 .logo {
@@ -97,7 +98,7 @@ body {
     text-align: center;
 }
 
-/* Background Slides Layout */
+/* Background Slides Layout - Added pointer-events fix */
 .slide {
     position: absolute;
     top: 0;
@@ -108,9 +109,10 @@ body {
     background-position: center;
     opacity: 0;
     animation: carouselAnimation 15s infinite;
+    pointer-events: none; /* Stops the images from blocking cursor interactions */
 }
 
-/* Placeholder backgrounds - replace these paths with your image assets */
+/* Slide image pathways */
 .slide1 {
     background-image: url('https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1920'); 
     animation-delay: 0s;
@@ -124,7 +126,7 @@ body {
     animation-delay: 10s;
 }
 
-/* Dark Overlay */
+/* Dark Overlay - Added pointer-events fix */
 .hero-overlay {
     position: absolute;
     top: 0;
@@ -133,6 +135,7 @@ body {
     height: 100%;
     background: rgba(15, 15, 22, 0.6); 
     z-index: 1;
+    pointer-events: none; /* Prevents this layer from intercepting clicks */
 }
 
 /* Hero Content Typography */
