@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Richo Web Studios | Under Construction</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #020205;
+            color: #ffffff;
+            user-select: none;
+        }
+
+        /* Ambient Outer-Space Color Swirls */
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 255, 128, 0.04) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 50, 50, 0.04) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, rgba(50, 150, 255, 0.03) 0%, transparent 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Full Screen Game Canvas */
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            display: block;
+        }
+
+        /* Central Breathtaking Liquid Glass HUD Overlay */
+        .hud-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            width: 90%;
+            max-width: 540px;
+            padding: 45px 40px;
+            background: rgba(10, 10, 15, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 35px;
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8),
+                        inset 0 1px 3px rgba(255, 255, 255, 0.15);
+            text-align: center;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .hud-overlay.playing {
+            opacity: 0;
+            transform: translate(-50%, -45%) scale(0.95);
+            pointer-events: none;
+        }
+
+        .studio-tag {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: #3296ff;
+            text-shadow: 0 0 15px rgba(50, 150, 255, 0.4);
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 30%, #a0a5b5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: #cccfdb;
+            line-height: 1.6;
+            margin-bottom: 35px;
+            font-weight: 300;
+        }
+
+        /* Arcade Glass Action Button */
+        .btn-launch {
+            display: inline-block;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 36px;
+            border-radius: 50px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4),
+                        inset 0 1px 2px rgba(255,255,255,0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-launch:hover {
+            background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 100%);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.1), inset 0 1px 2px rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Tiny Score HUD pinned to top edge during gameplay */
+        .live-score-hud {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            font-family: monospace;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 24px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .live-score-hud.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nebula"></div>
+    <div id="scoreHud" class="live-score-hud">SCORE: 0</div>
+
+    <div id="hudMenu" class="hud-overlay">
+        <div class="studio-tag">Richo Web Studios</div>
+        <h1 id="hudTitle">Under<br>Deconstruction</h1>
+        <p id="hudText">We are breaking down our old code structure to deploy a breathtaking digital upgrade. Dodge the flying code fragments to test your stability matrix.</p>
+        <button id="actionBtn" class="btn-launch" onclick="startGame()">Click to Play</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const hudMenu = document.getElementById('hudMenu');
+        const hudTitle = document.getElementById('hudTitle');
+        const hudText = document.getElementById('hudText');
+        const actionBtn = document.getElementById('actionBtn');
+        const scoreHud = document.getElementById('scoreHud');
+
+        // Dynamically track window dimensions
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        // Core Game Engine State
+        let gameState = "MENU"; // MENU, PLAYING, CRASHED
+        let score = 0;
+        let frameCounter = 0;
+        let obstacles = [];
+
+        // Dynamic Text Code Fragments to serve as obstacles
+        const codeDebris = ["<div>", "const", "for()", "import", "{} || []", "01101", "<p>", "</div>", "===", "main.js", "style.css", "push()", "function()", "<script>"];
+        const debrisColors = ['#00ff80', '#ff3232', '#ffd700', '#3296ff']; // Green, Red, Yellow, Blue
+
+        // Player configuration
+        const player = {
+            x: 100,
+            y: height / 2,
+            width: 30,
+            height: 20,
+            gravity: 0.38,
+            velocity: 0,
+            jump: -6.2
+        };
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            if (gameState === "MENU") player.y = height / 2;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Core inputs
+        function playerAction() {
+            if (gameState === "PLAYING") {
+                player.velocity = player.jump;
+            }
+        }
+        window.addEventListener('keydown', (e) => { if (e.code === 'Space') playerAction(); });
+        window.addEventListener('mousedown', playerAction);
+        window.addEventListener('touchstart', (e) => { e.preventDefault(); playerAction(); });
+
+        function spawnObstacle() {
+            // Pick random text fragment and size metrics
+            const randomText = codeDebris[Math.floor(Math.random() * codeDebris.length)];
+            const randomColor = debrisColors[Math.floor(Math.random() * debrisColors.length)];
+            const size = Math.floor(Math.random() * 12) + 16; // font size between 16px and 28px
+            
+            // Measure string bounding width roughly
+            ctx.font = `bold ${size}px monospace`;
+            const approxWidth = ctx.measureText(randomText).width;
+
+            obstacles.push({
+                x: width + 50,
+                y: Math.random() * (height - 100) + 50,
+                text: randomText,
+                color: randomColor,
+                fontSize: size,
+                width: approxWidth,
+                height: size,
+                speed: 3.5 + Math.min(score * 0.15, 6),
+                passed: false
+            });
+        }
+
+        function startGame() {
+            score = 0;
+            obstacles = [];
+            player.y = height / 2;
+            player.velocity = 0;
+            gameState = "PLAYING";
+            
+            hudMenu.classList.add('playing');
+            scoreHud.innerText = `SCORE: ${score}`;
+            scoreHud.classList.add('show');
+        }
+
+        function handleCrash() {
+            gameState = "CRASHED";
+            scoreHud.classList.remove('show');
+            
+            // Reword the Glass HUD to act as a Game Over screen instantly
+            hudTitle.innerHTML = "System Crashed.";
+            hudText.innerHTML = `You collided with unstable code fragments! You achieved a score matrices velocity of <strong>${score}</strong>. Re-stabilize and try again.`;
+            actionBtn.innerText = "Reboot Matrix";
+            
+            hudMenu.classList.remove('playing');
+        }
+
+        // Infinite Render Engine Loop
+        function loop() {
+            requestAnimationFrame(loop);
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw clean background scanning system matrix lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
+            ctx.lineWidth = 1;
+            const grid = 40;
+            for(let i=0; i<width; i+=grid) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke(); }
+            for(let j=0; j<height; j+=grid) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(width, j); ctx.stroke(); }
+
+            if (gameState === "PLAYING") {
+                // Apply Gravitational Physics
+                player.velocity += player.gravity;
+                player.y += player.velocity;
+
+                // Ceiling/Floor constraints
+                if (player.y + player.height > height || player.y < 0) {
+                    handleCrash();
+                }
+            } else {
+                // Calm floating idling animation on menu setups
+                player.y = (height / 2) + Math.sin(Date.now() * 0.003) * 20;
+            }
+
+            // Draw Player Ship Pod (Vibrant Chrome Edge look)
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#3296ff';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            // Thruster Flare Glow
+            ctx.fillStyle = gameState === "PLAYING" ? '#ff3232' : '#ffd700';
+            ctx.fillRect(player.x - 8, player.y + 5, 8, player.height - 10);
+            ctx.shadowBlur = 0; // standard clear
+
+            // Continuous spawn tracker
+            if (gameState === "PLAYING") {
+                frameCounter++;
+                if (frameCounter % 60 === 0) spawnObstacle();
+            } else {
+                // Spawn fewer items passively on the menu background for aesthetics
+                frameCounter++;
+                if (frameCounter % 120 === 0 && obstacles.length < 5) spawnObstacle();
+            }
+
+            // Processing Obstacle Data
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let o = obstacles[i];
+                o.x -= gameState === "PLAYING" ? o.speed : o.speed * 0.2; // Move slower on menu
+
+                // Render stylized Code Snippet Obstacle text
+                ctx.fillStyle = o.color;
+                ctx.font = `bold ${o.fontSize}px monospace`;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = o.color;
+                ctx.fillText(o.text, o.x, o.y);
+                ctx.shadowBlur = 0;
+
+                if (gameState === "PLAYING") {
+                    // Score counting tracking metric
+                    if (o.x + o.width < player.x && !o.passed) {
+                        score++;
+                        o.passed = true;
+                        scoreHud.innerText = `SCORE: ${score}`;
+                    }
+
+                    // Strict Collision alignment bounding box
+                    if (
+                        player.x < o.x + o.width &&
+                        player.x + player.width > o.x &&
+                        player.y < o.y &&
+                        player.y + player.height > o.y - o.height
+                    ) {
+                        handleCrash();
+                    }
+                }
+
+                // Cleanup arrays out of viewport coordinates
+                if (o.x + o.width < -100) {
+                    obstacles.splice(i, 1);
+                }
+            }
+        }
+
+        // Initialize and fire execution pipeline
+        loop();
+    </script>
+</body>
+</html>
